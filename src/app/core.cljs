@@ -10,6 +10,14 @@
     [app.db]
     [re-frame.core :as rf]))
 
+(defui springs-matrix-view []
+  (let [degrees (hooks/use-subscribe [:app/degrees])
+        adjacencies (hooks/use-subscribe [:app/adjacencies])]
+    ($ :div
+       ($ :div "Degrees" (str degrees))
+       ($ :dib "Adjacencies" (str adjacencies))
+       )))
+
 (defui header []
   ($ :header.app-header
     ($ :img {:src "https://raw.githubusercontent.com/pitch-io/uix/master/logo.png"
@@ -80,15 +88,16 @@
 (defui app []
   (let [todos (hooks/use-subscribe [:app/todos])]
     ($ :.app
-      ($ header)
-      ($ text-field {:on-add-todo #(rf/dispatch [:todo/add %])})
-      (for [[created-at todo] todos]
-        ($ todo-item
-          (assoc todo :created-at created-at
-                      :key created-at
-                      :on-remove-todo #(rf/dispatch [:todo/remove %])
-                      :on-set-todo-text #(rf/dispatch [:todo/set-text %1 %2]))))
-      ($ footer))))
+       ($ header)
+       ($ springs-matrix-view)
+       #_($ text-field {:on-add-todo #(rf/dispatch [:todo/add %])})
+       #_(for [[created-at todo] todos]
+         ($ todo-item
+            (assoc todo :created-at created-at
+                   :key created-at
+                   :on-remove-todo #(rf/dispatch [:todo/remove %])
+                   :on-set-todo-text #(rf/dispatch [:todo/set-text %1 %2]))))
+       ($ footer))))
 
 (defonce root
   (uix.dom/create-root (js/document.getElementById "root")))

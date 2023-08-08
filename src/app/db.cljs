@@ -1,6 +1,6 @@
 (ns app.db
   (:require 
-   [emmy.matrix :as matrix :refer [s->m]]))
+   [emmy.matrix :as matrix]))
 
 (def laplacian-matrix
   (matrix/by-rows [6.3 -3.7 -2.6 0 0]
