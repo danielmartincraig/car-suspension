@@ -12,10 +12,11 @@
 
 (defui springs-matrix-view []
   (let [degrees (hooks/use-subscribe [:app/degrees])
-        adjacencies (hooks/use-subscribe [:app/adjacencies])]
+        ;;adjacencies (hooks/use-subscribe [:app/adjacencies])
+        ]
     ($ :div
        ($ :div "Degrees" (str degrees))
-       ($ :dib "Adjacencies" (str adjacencies))
+       #_($ :dib "Adjacencies" (str adjacencies))
        )))
 
 (defui header []

@@ -27,10 +27,7 @@
     (matrix/diagonal @springs))
 
   (let [degrees (rf/subscribe [:app/degrees])]
-    degrees)
-
-  (let [adjacencies (rf/subscribe [:app/adjacencies])]
-    (emmy/- @adjacencies (matrix/I 5)))
+    @degrees)
 
 
   (+ (matrix/I 2))
