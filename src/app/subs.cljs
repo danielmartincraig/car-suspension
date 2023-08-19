@@ -3,33 +3,51 @@
             [emmy.env :as emmy]
             [emmy.matrix :as matrix]))
 
+(rf/reg-sub :app/db
+            (fn [db _]
+              db))
+
 (rf/reg-sub :app/todos
             (fn [db _]
               (:todos db)))
 
-(rf/reg-sub :app/springs
+(rf/reg-sub :app/app-state
             (fn [db _]
-              (:springs db)))
+              (:app-state db)))
+
+(rf/reg-sub :app/springs
+            :<- [:app/app-state]
+            (fn [app-state _]
+              (apply matrix/by-rows (:springs app-state))))
+
+(rf/reg-sub :app/displacements
+            :<- [:app/app-state]
+            (fn [app-state _]
+              (apply matrix/by-rows (:displacement app-state))))
 
 (rf/reg-sub :app/degrees
             :<- [:app/springs]
             (fn [springs _]
               (matrix/diagonal springs)))
 
-(rf/reg-sub :app/adjacencies
-            :<= [:app/springs]
-            :<= [:app/degrees]
-            (fn [[springs degrees] _]
-               (emmy/- springs degrees)))
+(rf/reg-sub :app/forces
+            :<- [:app/springs]
+            :<- [:app/displacements]
+            (fn [[springs displacements] _]
+              (emmy/- (emmy/* springs (matrix/transpose displacements)))))
+
+(rf/reg-sub :app/displacement
+            :<- [:app/displacements]
+            (fn [displacements [_ i]]
+              (get-in displacements [0 i])))
 
 (comment
-  (let [springs (rf/subscribe [:app/springs])]
-    (matrix/diagonal @springs))
-
-  (let [degrees (rf/subscribe [:app/degrees])]
-    @degrees)
-
-
-  (+ (matrix/I 2))
-
+  (let [degrees (rf/subscribe [:app/degrees])
+        springs (rf/subscribe [:app/springs])
+        displacements (rf/subscribe [:app/displacements])
+        displacement (rf/subscribe [:app/displacement 1])
+        forces (rf/subscribe [:app/forces])]
+    @displacements)
+  
+  
   )

@@ -11,13 +11,16 @@
     [re-frame.core :as rf]))
 
 (defui springs-matrix-view []
-  (let [degrees (hooks/use-subscribe [:app/degrees])
-        ;;adjacencies (hooks/use-subscribe [:app/adjacencies])
+  (let [db (hooks/use-subscribe [:app/db])
+        degrees (hooks/use-subscribe [:app/degrees])
+        displacements (hooks/use-subscribe [:app/displacements])
+        forces (hooks/use-subscribe [:app/forces])
         ]
     ($ :div
+       ($ :div "db" (str db))
        ($ :div "Degrees" (str degrees))
-       #_($ :dib "Adjacencies" (str adjacencies))
-       )))
+       ($ :div "Displacements" (str displacements))
+       ($ :div "Forces" (str forces)))))
 
 (defui header []
   ($ :header.app-header
@@ -26,9 +29,20 @@
 
 (defui footer []
   ($ :footer.app-footer
-    ($ :small "made with "
-              ($ :a {:href "https://github.com/pitch-io/uix"}
-                    "UIx"))))
+    ($ :small "made by Daniel Craig")))
+
+(defui displacement-field [{:keys [on-edit-displacement i]}]
+  (let [displacement (hooks/use-subscribe [:app/displacement i])
+        [value set-value!] (uix/use-state displacement)]
+    ($ :input
+       {:value value
+        :type :number
+        :placeholder 0
+        :on-change (fn [^js e]
+                     (rf/console :log (type on-edit-displacement))
+                     (set-value! (.. e -target -value))
+                     (on-edit-displacement (int (.. e -target -value))))
+        })))
 
 (defui text-field [{:keys [on-add-todo]}]
   (let [[value set-value!] (uix/use-state "")]
@@ -91,13 +105,15 @@
     ($ :.app
        ($ header)
        ($ springs-matrix-view)
-       #_($ text-field {:on-add-todo #(rf/dispatch [:todo/add %])})
+       ($ displacement-field {:i 0 :on-edit-displacement #(rf/dispatch [:displacement/update-displacement 0 %])})
+       ($ displacement-field {:i 1 :on-edit-displacement #(rf/dispatch [:displacement/update-displacement 1 %])})
+       ($ displacement-field {:i 2 :on-edit-displacement #(rf/dispatch [:displacement/update-displacement 2 %])})
        #_(for [[created-at todo] todos]
-         ($ todo-item
-            (assoc todo :created-at created-at
-                   :key created-at
-                   :on-remove-todo #(rf/dispatch [:todo/remove %])
-                   :on-set-todo-text #(rf/dispatch [:todo/set-text %1 %2]))))
+           ($ todo-item
+              (assoc todo :created-at created-at
+                     :key created-at
+                     :on-remove-todo #(rf/dispatch [:todo/remove %])
+                     :on-set-todo-text #(rf/dispatch [:todo/set-text %1 %2]))))
        ($ footer))))
 
 (defonce root

@@ -3,12 +3,14 @@
             [app.fx :as fx]))
 
 (def load-todos (rf/inject-cofx :store/todos "uix-starter/todos"))
+(def load-app-state (rf/inject-cofx :store/app-state "car-suspension/app-state"))
 (def store-todos (fx/store-todos "uix-starter/todos"))
+(def store-app-state (fx/store-app-state "car-suspension/app-state"))
 
 (rf/reg-event-fx :app/init-db
-  [load-todos]
-  (fn [{:store/keys [todos]} [_ default-db]]
-    {:db (update default-db :todos into todos)}))
+  [load-app-state]
+  (fn [{:store/keys [app-state]} [_ default-db]]
+    {:db (update default-db :app-state into app-state)}))
 
 (rf/reg-event-fx :todo/add
   [(rf/inject-cofx :time/now) store-todos]
@@ -32,3 +34,8 @@
   (fn [db [_ created-at]]
     (update-in db [:todos created-at :status] {:unresolved :resolved
                                                :resolved :unresolved})))
+
+(rf/reg-event-db :displacement/update-displacement
+                 [store-app-state]
+                 (fn [db [_ i new-displacement]]
+                   (assoc-in db [:app-state :displacement 0 i] new-displacement)))
