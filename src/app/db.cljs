@@ -8,7 +8,7 @@
    [0 -1 1]])
 
 (def displacement-vector
-  [[0 0 1]])
+  [[0 0 0]])
 
 (def default-db
   {:todos (sorted-map-by >)

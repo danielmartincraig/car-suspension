@@ -41,13 +41,22 @@
             (fn [displacements [_ i]]
               (get-in displacements [0 i])))
 
+(rf/reg-sub :app/force
+            :<- [:app/forces]
+            (fn [forces [_ i]]
+              (get-in forces [i 0])))
+
+
 (comment
-  (let [degrees (rf/subscribe [:app/degrees])
+  (let [
+        degrees (rf/subscribe [:app/degrees])
         springs (rf/subscribe [:app/springs])
         displacements (rf/subscribe [:app/displacements])
         displacement (rf/subscribe [:app/displacement 1])
-        forces (rf/subscribe [:app/forces])]
-    @displacements)
+        forces (rf/subscribe [:app/forces])
+        force (rf/subscribe [:app/force 1])
+        elastic-thinning (rf/subscribe [:app/elastic-thinning 0])]
+    @elastic-thinning)
   
   
   )

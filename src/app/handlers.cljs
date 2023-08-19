@@ -38,4 +38,11 @@
 (rf/reg-event-db :displacement/update-displacement
                  [store-app-state]
                  (fn [db [_ i new-displacement]]
-                   (assoc-in db [:app-state :displacement 0 i] new-displacement)))
+                   (if (<= (abs new-displacement) 10)
+                     (assoc-in db [:app-state :displacement 0 i] new-displacement)
+                     db)))
+
+(rf/reg-event-db :displacement/reset-displacements
+                 [store-app-state]
+                 (fn [db _]
+                   (assoc-in db [:app-state :displacement] [[0 0 0]])))

@@ -1,119 +1,94 @@
 (ns app.core
   (:require
-    [cljs.spec.alpha :as s]
-    [uix.core :as uix :refer [defui $]]
-    [uix.dom]
-    [app.hooks :as hooks]
-    [app.subs]
-    [app.handlers]
-    [app.fx]
-    [app.db]
-    [re-frame.core :as rf]))
+   [cljs.spec.alpha :as s]
+   [uix.core :as uix :refer [defui $]]
+   [uix.dom]
+   [app.hooks :as hooks]
+   [app.subs]
+   [app.handlers]
+   [app.fx]
+   [app.db]
+   [re-frame.core :as rf]
+   [clojure.string :as str]))
 
-(defui springs-matrix-view []
-  (let [db (hooks/use-subscribe [:app/db])
-        degrees (hooks/use-subscribe [:app/degrees])
-        displacements (hooks/use-subscribe [:app/displacements])
-        forces (hooks/use-subscribe [:app/forces])
-        ]
-    ($ :div
-       ($ :div "db" (str db))
-       ($ :div "Degrees" (str degrees))
-       ($ :div "Displacements" (str displacements))
-       ($ :div "Forces" (str forces)))))
+(defn color-fn [force]
+  (cond (>= (abs force) 20) "#ffffff"
+        (>= (abs force) 19) "#ffe6e6"
+        (>= (abs force) 18) "#ffcccc"
+        (>= (abs force) 17) "#ffb3b3"
+        (>= (abs force) 16) "#ff9999"
+        (>= (abs force) 15) "#ff8080"
+        (>= (abs force) 14) "#ff6666"
+        (>= (abs force) 13) "#ff4d4d"
+        (>= (abs force) 12) "#ff3333"
+        (>= (abs force) 11) "#ff1a1a"
+        (>= (abs force) 10) "#ff0000"
+        (>= (abs force) 9) "#e60000"
+        (>= (abs force) 8) "#cc0000"
+        (>= (abs force) 7) "#b30000"
+        (>= (abs force) 6) "#990000"
+        (>= (abs force) 5) "#800000"
+        (>= (abs force) 4) "#660000"
+        (>= (abs force) 3) "#4d0000"
+        (>= (abs force) 2) "#330000"
+        (>= (abs force) 1) "#1a0000"
+        :default "#000000"))
+
+(defui spring-network-view []
+  (let [x1 (hooks/use-subscribe [:app/displacement 0])
+        x2 (hooks/use-subscribe [:app/displacement 1])
+        x3 (hooks/use-subscribe [:app/displacement 2])     
+        f1 (hooks/use-subscribe [:app/force 0])
+        f2 (hooks/use-subscribe [:app/force 1])
+        f3 (hooks/use-subscribe [:app/force 2])]
+    ($ :svg
+       ($ :path {:stroke "black"
+                 :stroke-width 10
+                 :d (str/join " " ["M" (+ 100 x1) 25 "L" (+ 250 x2) 25])})
+       ($ :path {:stroke "black"
+                 :stroke-width 10
+                 :d (str/join " " ["M" (+ 250 x2) 25 "L" (+ 350 x3) 25])})
+       ($ :rect {:x (+ 100 x1) :y 0 :width 50 :height 50 :style {:fill (color-fn f1) :stroke-width 3 :stroke "black"}})
+       ($ :rect {:x (+ 200 x2) :y 0 :width 50 :height 50 :style {:fill (color-fn f2) :stroke-width 3 :stroke "black"}})
+       ($ :rect {:x (+ 300 x3) :y 0 :width 50 :height 50 :style {:fill (color-fn f3) :stroke-width 3 :stroke "black"}})
+       ($ :text {:x (+ 102 x1) :y 80 :font-family "Verdana" :font-size 26} f1)
+       ($ :text {:x (+ 202 x2) :y 80 :font-family "Verdana" :font-size 26} f2)
+       ($ :text {:x (+ 302 x3) :y 80 :font-family "Verdana" :font-size 26} f3))))
+
+(defui reset-displacements-button []
+  ($ :div ($ :button
+             {:on-click #(rf/dispatch [:displacement/reset-displacements])}
+             "Reset")))
+  
 
 (defui header []
   ($ :header.app-header
-    ($ :img {:src "https://raw.githubusercontent.com/pitch-io/uix/master/logo.png"
-             :width 32})))
+    ($ :div {:width 32} "Network of Springs" )))
 
 (defui footer []
   ($ :footer.app-footer
     ($ :small "made by Daniel Craig")))
 
 (defui displacement-field [{:keys [on-edit-displacement i]}]
-  (let [displacement (hooks/use-subscribe [:app/displacement i])
-        [value set-value!] (uix/use-state displacement)]
-    ($ :input
-       {:value value
-        :type :number
-        :placeholder 0
-        :on-change (fn [^js e]
-                     (rf/console :log (type on-edit-displacement))
-                     (set-value! (.. e -target -value))
-                     (on-edit-displacement (int (.. e -target -value))))
-        })))
-
-(defui text-field [{:keys [on-add-todo]}]
-  (let [[value set-value!] (uix/use-state "")]
-    ($ :input.text-input
-      {:value value
-       :placeholder "Add a new todo and hit Enter to save"
-       :on-change (fn [^js e]
-                    (set-value! (.. e -target -value)))
-       :on-key-down (fn [^js e]
-                      (when (= "Enter" (.-key e))
-                        (set-value! "")
-                        (on-add-todo {:text value :status :unresolved})))})))
-
-(defui editable-text [{:keys [text text-style on-done-editing]}]
-  (let [[editing? set-editing!] (uix/use-state false)
-        [editing-value set-editing-value!] (uix/use-state "")]
-    (if editing?
-      ($ :input.todo-item-text-field
-        {:value editing-value
-         :auto-focus true
-         :on-change (fn [^js e]
-                      (set-editing-value! (.. e -target -value)))
-         :on-key-down (fn [^js e]
-                        (when (= "Enter" (.-key e))
-                          (set-editing-value! "")
-                          (set-editing! false)
-                          (on-done-editing editing-value)))})
-      ($ :span.todo-item-text
-        {:style text-style
-         :on-click (fn [_]
-                     (set-editing! true)
-                     (set-editing-value! text))}
-        text))))
-
-(s/def :todo/text string?)
-(s/def :todo/status #{:unresolved :resolved})
-
-(s/def :todo/item
-  (s/keys :req-un [:todo/text :todo/status]))
-
-(defui todo-item
-  [{:keys [created-at text status on-remove-todo on-set-todo-text] :as props}]
-  {:pre [(s/valid? :todo/item props)]}
-  ($ :.todo-item
-    {:key created-at}
-    ($ :input.todo-item-control
-      {:type :checkbox
-       :checked (= status :resolved)
-       :on-change #(rf/dispatch [:todo/toggle-status created-at])})
-    ($ editable-text
-      {:text text
-       :text-style {:text-decoration (when (= :resolved status) :line-through)}
-       :on-done-editing #(on-set-todo-text created-at %)})
-    ($ :button.todo-item-delete-button
-      {:on-click #(on-remove-todo created-at)}
-      "×")))
+  (let [displacement (hooks/use-subscribe [:app/displacement i])]
+    ($ :div
+       ($ :div "Displacement " i)
+       ($ :input
+          {:value displacement
+           :type :number
+           :placeholder 0
+           :on-change (fn [^js e]
+                        (on-edit-displacement (int (.. e -target -value))))}))))
 
 (defui app []
   (let [todos (hooks/use-subscribe [:app/todos])]
     ($ :.app
        ($ header)
-       ($ springs-matrix-view)
+       ($ spring-network-view)
        ($ displacement-field {:i 0 :on-edit-displacement #(rf/dispatch [:displacement/update-displacement 0 %])})
        ($ displacement-field {:i 1 :on-edit-displacement #(rf/dispatch [:displacement/update-displacement 1 %])})
        ($ displacement-field {:i 2 :on-edit-displacement #(rf/dispatch [:displacement/update-displacement 2 %])})
-       #_(for [[created-at todo] todos]
-           ($ todo-item
-              (assoc todo :created-at created-at
-                     :key created-at
-                     :on-remove-todo #(rf/dispatch [:todo/remove %])
-                     :on-set-todo-text #(rf/dispatch [:todo/set-text %1 %2]))))
+       ($ reset-displacements-button)
        ($ footer))))
 
 (defonce root
