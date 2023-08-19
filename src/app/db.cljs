@@ -11,6 +11,5 @@
   [[0 0 0]])
 
 (def default-db
-  {:todos (sorted-map-by >)
-   :app-state {:springs spring-matrix
+  {:app-state {:springs spring-matrix
                :displacement displacement-vector}})

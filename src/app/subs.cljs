@@ -3,10 +3,6 @@
             [emmy.env :as emmy]
             [emmy.matrix :as matrix]))
 
-(rf/reg-sub :app/db
-            (fn [db _]
-              db))
-
 (rf/reg-sub :app/todos
             (fn [db _]
               (:todos db)))
@@ -25,11 +21,6 @@
             (fn [app-state _]
               (apply matrix/by-rows (:displacement app-state))))
 
-(rf/reg-sub :app/degrees
-            :<- [:app/springs]
-            (fn [springs _]
-              (matrix/diagonal springs)))
-
 (rf/reg-sub :app/forces
             :<- [:app/springs]
             :<- [:app/displacements]
@@ -45,18 +36,3 @@
             :<- [:app/forces]
             (fn [forces [_ i]]
               (get-in forces [i 0])))
-
-
-(comment
-  (let [
-        degrees (rf/subscribe [:app/degrees])
-        springs (rf/subscribe [:app/springs])
-        displacements (rf/subscribe [:app/displacements])
-        displacement (rf/subscribe [:app/displacement 1])
-        forces (rf/subscribe [:app/forces])
-        force (rf/subscribe [:app/force 1])
-        elastic-thinning (rf/subscribe [:app/elastic-thinning 0])]
-    @elastic-thinning)
-  
-  
-  )
