@@ -12,27 +12,27 @@
    [clojure.string :as str]))
 
 (defn color-fn [force]
-  (cond (>= (abs force) 20) "#ffffff"
-        (>= (abs force) 19) "#ffe6e6"
-        (>= (abs force) 18) "#ffcccc"
-        (>= (abs force) 17) "#ffb3b3"
-        (>= (abs force) 16) "#ff9999"
-        (>= (abs force) 15) "#ff8080"
-        (>= (abs force) 14) "#ff6666"
-        (>= (abs force) 13) "#ff4d4d"
-        (>= (abs force) 12) "#ff3333"
-        (>= (abs force) 11) "#ff1a1a"
-        (>= (abs force) 10) "#ff0000"
-        (>= (abs force) 9) "#e60000"
-        (>= (abs force) 8) "#cc0000"
-        (>= (abs force) 7) "#b30000"
-        (>= (abs force) 6) "#990000"
-        (>= (abs force) 5) "#800000"
-        (>= (abs force) 4) "#660000"
-        (>= (abs force) 3) "#4d0000"
-        (>= (abs force) 2) "#330000"
-        (>= (abs force) 1) "#1a0000"
-        :default "#000000"))
+  (cond (<= (abs force) 0) "#ffffff"
+        (<= (abs force) 1) "#ffe6e6"
+        (<= (abs force) 2) "#ffcccc"
+        (<= (abs force) 3) "#ffb3b3"
+        (<= (abs force) 4) "#ff9999"
+        (<= (abs force) 5) "#ff8080"
+        (<= (abs force) 6) "#ff6666"
+        (<= (abs force) 7) "#ff4d4d"
+        (<= (abs force) 8) "#ff3333"
+        (<= (abs force) 9) "#ff1a1a"
+        (<= (abs force) 10) "#ff0000"
+        (<= (abs force) 11) "#e60000"
+        (<= (abs force) 12) "#cc0000"
+        (<= (abs force) 13) "#b30000"
+        (<= (abs force) 14) "#990000"
+        (<= (abs force) 15) "#800000"
+        (<= (abs force) 16) "#660000"
+        (<= (abs force) 17) "#4d0000"
+        (<= (abs force) 18) "#330000"
+        (<= (abs force) 19) "#1a0000"
+        :else "#1a0000"))
 
 (defui spring-network-view []
   (let [x1 (hooks/use-subscribe [:app/displacement 0])
