@@ -12,4 +12,5 @@
 
 (def default-db
   {:app-state {:springs spring-matrix
-               :displacement displacement-vector}})
+               :displacement displacement-vector
+               :time 0}})
