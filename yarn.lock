@@ -432,26 +432,27 @@ isexe@^2.0.0:
   resolved "https://registry.npmjs.org/js-tokens/-/js-tokens-4.0.0.tgz"
   integrity sha512-RdJUflcE3cUzKiMqQgsCu06FPu9UdIJO0beYbPhHN4k6apgJtifcoCtT9bcxOpYBtpD2kCM6Sbzg4CausW/PKQ==
 
-lightningcss-cli-darwin-x64@1.19.0:
-  version "1.19.0"
-  resolved "https://registry.npmjs.org/lightningcss-cli-darwin-x64/-/lightningcss-cli-darwin-x64-1.19.0.tgz"
-  integrity sha512-tA8k044gGh0Fe4Z6KDtgKcyOYksl1Qeme4sRbSgz7iLEIff7YVsmV2eThZbyBE93SiT6mUQtkWete6lHp2ET0Q==
+lightningcss-cli-darwin-x64@1.22.0:
+  version "1.22.0"
+  resolved "https://registry.npmjs.org/lightningcss-cli-darwin-x64/-/lightningcss-cli-darwin-x64-1.22.0.tgz"
+  integrity sha512-4UEIUqyoQ5k0Kby2XJbYUmqXs8qWbPmVzNcyzEZK6jIPAuQsFh6RQEak7sVreqYN1rTbtLTP+BkWbJ36brLnsA==
 
 lightningcss-cli@^1.19.0:
-  version "1.19.0"
-  resolved "https://registry.npmjs.org/lightningcss-cli/-/lightningcss-cli-1.19.0.tgz"
-  integrity sha512-Ih21GtPiGf9T42uv8otrrB8Xd/i/uPCWVp+OdOuhavIPGlw/D6ddZc1Gv0zq0dmlKbCw8WHcWbiQY0D9KiL1uQ==
+  version "1.22.0"
+  resolved "https://registry.npmjs.org/lightningcss-cli/-/lightningcss-cli-1.22.0.tgz"
+  integrity sha512-uJA+a1Yv5Nwq9VD8pAuHv+yS8G0yJP55W2qLwERSetDVxJdnU8QBvfyW8/BFM4GfO4xLliIx31wxMbhmuyxkGw==
   dependencies:
     detect-libc "^1.0.3"
   optionalDependencies:
-    lightningcss-cli-darwin-arm64 "1.19.0"
-    lightningcss-cli-darwin-x64 "1.19.0"
-    lightningcss-cli-linux-arm-gnueabihf "1.19.0"
-    lightningcss-cli-linux-arm64-gnu "1.19.0"
-    lightningcss-cli-linux-arm64-musl "1.19.0"
-    lightningcss-cli-linux-x64-gnu "1.19.0"
-    lightningcss-cli-linux-x64-musl "1.19.0"
-    lightningcss-cli-win32-x64-msvc "1.19.0"
+    lightningcss-cli-darwin-arm64 "1.22.0"
+    lightningcss-cli-darwin-x64 "1.22.0"
+    lightningcss-cli-freebsd-x64 "1.22.0"
+    lightningcss-cli-linux-arm-gnueabihf "1.22.0"
+    lightningcss-cli-linux-arm64-gnu "1.22.0"
+    lightningcss-cli-linux-arm64-musl "1.22.0"
+    lightningcss-cli-linux-x64-gnu "1.22.0"
+    lightningcss-cli-linux-x64-musl "1.22.0"
+    lightningcss-cli-win32-x64-msvc "1.22.0"
 
 loose-envify@^1.1.0:
   version "1.4.0"
