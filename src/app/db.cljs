@@ -8,7 +8,9 @@
    [0 -1 1]])
 
 (def displacement-vector
-  [[0 0 0]])
+  [[0]
+   [0]
+   [0]])
 
 (def default-db
   {:app-state {:springs spring-matrix

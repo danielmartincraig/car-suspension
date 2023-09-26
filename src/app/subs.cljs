@@ -7,12 +7,12 @@
 
 (defn calculate-forces
   [springs displacements]
-  (emmy/- (emmy/* springs 
-                  (matrix/transpose displacements))))
+  (emmy/- (emmy/* springs
+                  displacements)))
 
 (defn calculate-displacements 
   [displacements forces]
-  (emmy/+ (matrix/transpose displacements) 
+  (emmy/+ displacements 
           (emmy/* dampening-factor forces)))
 
 (rf/reg-sub :app/todos
@@ -42,12 +42,12 @@
             :<- [:app/springs]
             :<- [:app/initial-displacements]
             (fn [[springs displacements] _]
-              (emmy/- (emmy/* springs (matrix/transpose displacements)))))
+              (emmy/- (emmy/* springs displacements))))
 
 (rf/reg-sub :app/initial-displacement
             :<- [:app/initial-displacements]
             (fn [displacements [_ i]]
-              (get-in displacements [0 i])))
+              (get-in displacements [i 0])))
 
 (rf/reg-sub :app/force
             :<- [:app/forces]
@@ -61,14 +61,14 @@
             (fn [[springs displacements time] _]
               (nth (iterate (fn [displacements]
                                  (let [forces (calculate-forces springs displacements)
-                                        new-displacements (calculate-displacements displacements forces)]
-                                    (matrix/transpose new-displacements)))
+                                       new-displacements (calculate-displacements displacements forces)]
+                                   new-displacements))
                                  displacements) time)))
 
 (rf/reg-sub :app/simulation-displacement
             :<- [:app/simulation-displacements]
             (fn [simulation-displacements [_ i]]
-              (get-in simulation-displacements [0 i])))
+              (get-in simulation-displacements [i 0])))
 
 (rf/reg-sub :app/simulation-forces
             :<- [:app/springs]
@@ -83,27 +83,7 @@
               (get-in simulation-forces [i 0])))
 
 (comment
+  (let [d (rf/subscribe [:app/simulation-displacement 1])]
+       d)
 
-  (let [sf (rf/subscribe [:app/initial-displacement 1])]
-    sf)
-
-  (let [sf (rf/subscribe [:app/simulation-displacement 1])]
-    sf)
-
-  (let [springs       (rf/subscribe [:app/springs])
-        displacements (rf/subscribe [:app/initial-displacements])
-        forces        (calculate-forces @springs @displacements)]
-    (emmy/* dampening-factor forces))
-
-
-  (let [springs       (rf/subscribe [:app/springs])
-        displacements (rf/subscribe [:app/initial-displacements])]
-    (take 5 (iterate (fn [displacements]
-                       (let [forces (calculate-forces @springs displacements)
-                             new-displacements (calculate-displacements displacements forces)]
-                         (matrix/transpose new-displacements)))
-                     @displacements)))
-
-  (let [sd (rf/subscribe [:app/simulation-displacements])]
-    (get-in @sd [0 1]))
   )
