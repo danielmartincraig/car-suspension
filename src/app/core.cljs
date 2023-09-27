@@ -37,12 +37,14 @@
         :else "#1a0000"))
 
 (defui spring-network-view []
-  (let [x1 (hooks/use-subscribe [:app/simulation-displacement 0])
+  (let [
+        x1 (hooks/use-subscribe [:app/simulation-displacement 0])
         x2 (hooks/use-subscribe [:app/simulation-displacement 1])
         x3 (hooks/use-subscribe [:app/simulation-displacement 2])
         f1 (hooks/use-subscribe [:app/simulation-force 0])
         f2 (hooks/use-subscribe [:app/simulation-force 1])
-        f3 (hooks/use-subscribe [:app/simulation-force 2])]
+        f3 (hooks/use-subscribe [:app/simulation-force 2])
+        ]
     ($ :svg
        ($ :path {:stroke "black"
                  :stroke-width 10
@@ -64,7 +66,8 @@
        ($ :text {:x 302 :y 80 :font-family "Montserrat" :font-size 18} (gs/format "s3 %.1f" x3))
        ($ :text {:x 102 :y 100 :font-family "Montserrat" :font-size 18} (gs/format "f1 %.1f" f1))
        ($ :text {:x 202 :y 100 :font-family "Montserrat" :font-size 18} (gs/format "f2 %.1f" f2))
-       ($ :text {:x 302 :y 100 :font-family "Montserrat" :font-size 18} (gs/format "f3 %.1f" f3)))))
+       ($ :text {:x 302 :y 100 :font-family "Montserrat" :font-size 18} (gs/format "f3 %.1f" f3))
+       )))
 
 (defui reset-displacements-button []
   ($ :div ($ :button

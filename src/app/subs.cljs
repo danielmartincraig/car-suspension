@@ -3,17 +3,31 @@
             [emmy.env :as emmy]
             [emmy.matrix :as matrix]))
 
-(def dampening-factor 0.1)
+(def friction 0.75)
+(def block-mass 40)
 
 (defn calculate-forces
   [springs displacements]
   (emmy/- (emmy/* springs
                   displacements)))
 
+(defn calculate-momentum
+  [momentum forces]
+  (let [acceleration (emmy/* (emmy// forces block-mass) friction)]
+    (emmy/+ momentum acceleration)))
+
 (defn calculate-displacements 
-  [displacements forces]
-  (emmy/+ displacements 
-          (emmy/* dampening-factor forces)))
+  [displacements momentum]
+  (emmy/+ displacements momentum))
+
+(defn step 
+  [{:keys [springs displacements momentum]}]
+   (let [forces            (calculate-forces springs displacements)
+         new-displacements (calculate-displacements displacements momentum)
+         new-momentum      (calculate-momentum momentum forces)]
+     {:springs springs 
+      :displacements new-displacements 
+      :momentum new-momentum}))
 
 (rf/reg-sub :app/todos
             (fn [db _]
@@ -32,6 +46,11 @@
             :<- [:app/app-state]
             (fn [app-state _]
               (apply matrix/by-rows (:displacement app-state))))
+
+(rf/reg-sub :app/initial-momentum
+            :<- [:app/app-state]
+            (fn [app-state _]
+              (apply matrix/by-rows (:initial-momentum app-state))))
 
 (rf/reg-sub :app/time
             :<- [:app/app-state]
@@ -54,16 +73,25 @@
             (fn [forces [_ i]]
               (get-in forces [i 0])))
 
-(rf/reg-sub :app/simulation-displacements
+(rf/reg-sub :app/simulation
             :<- [:app/springs]
             :<- [:app/initial-displacements]
+            :<- [:app/initial-momentum]
+  (fn [[springs displacements momentum] _]
+    (iterate step {:springs springs
+                   :displacements displacements
+                   :momentum momentum})))
+
+(rf/reg-sub :app/simulation-at-time
+            :<- [:app/simulation]
             :<- [:app/time]
-            (fn [[springs displacements time] _]
-              (nth (iterate (fn [displacements]
-                                 (let [forces (calculate-forces springs displacements)
-                                       new-displacements (calculate-displacements displacements forces)]
-                                   new-displacements))
-                                 displacements) time)))
+            (fn [[simulation time] _]
+              (nth simulation time)))
+
+(rf/reg-sub :app/simulation-displacements
+            :<- [:app/simulation-at-time]
+            (fn [simulation-at-time _]
+              (:displacements simulation-at-time)))
 
 (rf/reg-sub :app/simulation-displacement
             :<- [:app/simulation-displacements]
@@ -76,14 +104,7 @@
             (fn [[springs simulation-displacements] _]
               (calculate-forces springs simulation-displacements)))
 
-
 (rf/reg-sub :app/simulation-force
             :<- [:app/simulation-forces]
             (fn [simulation-forces [_ i]]
               (get-in simulation-forces [i 0])))
-
-(comment
-  (let [d (rf/subscribe [:app/simulation-displacement 1])]
-       d)
-
-  )
